@@ -1,979 +1,705 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Livro de Receitas</title>
-    <!-- Tailwind CSS for styling -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabor na Tela</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Google Fonts: Merriweather and Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
-      /* Custom styles */
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-      .checked-item > span {
-        text-decoration: line-through;
-        color: #9ca3af;
-      }
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      /* Page transition styles */
-      .page {
-        display: none;
-      }
-      .page.active {
-        display: block;
-      }
-      /* Autocomplete styles */
-      #autocomplete-suggestions {
-        max-height: 10rem; /* 160px */
-        overflow-y: auto;
-      }
-      #autocomplete-suggestions div:hover {
-        background-color: #f3f4f6; /* gray-100 */
-      }
+        /* Custom styles based on the "Sabor na Tela" concept */
+        :root {
+            --primary: #E87A5D; /* Terracota */
+            --secondary: #8A9A5B; /* Verde Sálvia */
+            --accent: #FFDB58; /* Amarelo Mostarda */
+            --background: #FFF8E7; /* Off-white */
+            --text-dark: #3a3a3a;
+            --text-light: #6b6b6b;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Merriweather', serif;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        .checked-item > span {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        #autocomplete-suggestions { max-height: 10rem; overflow-y: auto; }
+        #autocomplete-suggestions div:hover { background-color: #f3f4f6; }
+        /* Custom button colors */
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: #d96a4d; }
+        .btn-secondary { background-color: var(--secondary); color: white; }
+        .btn-secondary:hover { background-color: #7a8a4b; }
+        .btn-accent { background-color: var(--accent); color: var(--text-dark); }
+        .btn-accent:hover { background-color: #f0cf48; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
-  </head>
-  <body class="bg-gray-100">
-    <!-- Container principal -->
+</head>
+<body class="antialiased">
+
+    <!-- Main Container -->
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-      <!-- PÁGINA DO MENU -->
-      <div id="menu-page" class="page active">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">
-            Livro de Receitas
-          </h1>
-          <p class="text-gray-500 mt-2">O que você gostaria de fazer?</p>
-        </div>
-        <div class="max-w-md mx-auto space-y-4">
-          <button
-            data-target="creator-page"
-            class="navigate-btn w-full bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-left flex items-center"
-          >
-            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg mr-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-xl font-semibold text-gray-800">
-                Criador de Receitas
-              </h2>
-              <p class="text-gray-500">Crie uma nova receita do zero</p>
-            </div>
-          </button>
-          <button
-            data-target="book-page"
-            class="navigate-btn w-full bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-left flex items-center"
-          >
-            <div class="bg-green-100 text-green-600 p-3 rounded-lg mr-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-xl font-semibold text-gray-800">
-                Meu Livro de Receitas
-              </h2>
-              <p class="text-gray-500">Veja todas as suas receitas salvas</p>
-            </div>
-          </button>
-          <button
-            data-target="shopping-list-page"
-            class="navigate-btn w-full bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-left flex items-center"
-          >
-            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-lg mr-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-xl font-semibold text-gray-800">
-                Lista de Compras
-              </h2>
-              <p class="text-gray-500">Organize seus ingredientes</p>
-            </div>
-          </button>
-        </div>
-      </div>
 
-      <!-- PÁGINA DO CRIADOR DE RECEITAS -->
-      <div id="creator-page" class="page">
-        <div
-          class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg h-fit"
-        >
-          <div class="flex items-center mb-6">
-            <button
-              data-target="menu-page"
-              class="navigate-btn text-gray-500 hover:text-blue-600 mr-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </button>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
-              Criador de Receitas
-            </h1>
-          </div>
-          <div class="mb-4">
-            <label
-              for="recipeName"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Nome da Receita</label
-            ><input
-              type="text"
-              id="recipeName"
-              placeholder="Ex: Bolo de Chocolate"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div class="mb-6">
-            <label
-              for="recipeDescription"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Descrição / Modo de Preparo</label
-            ><textarea
-              id="recipeDescription"
-              rows="4"
-              placeholder="Ex: Misture os ingredientes secos primeiro..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-          </div>
-          <div class="mb-6">
-            <label
-              for="ingredientInput"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Adicionar Ingrediente</label
-            >
-            <div class="flex space-x-2">
-              <input
-                type="text"
-                id="ingredientInput"
-                placeholder="Ex: 2 xícaras de farinha"
-                class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              /><button
-                id="addIngredientBtn"
-                class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 shrink-0"
-              >
-                +
-              </button>
+        <!-- PÁGINA DO MENU -->
+        <div id="menu-page" class="page active">
+            <div class="text-center mb-10"><h1 class="text-4xl sm:text-5xl font-bold text-gray-800">Sabor na Tela</h1><p class="text-gray-500 mt-2 text-lg">Seu assistente de culinária pessoal</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <!-- Card Criador de Receitas -->
+                <button data-target="creator-page" class="navigate-btn group bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all text-left flex flex-col items-center text-center">
+                    <div class="bg-red-100 text-red-600 p-4 rounded-full mb-4 transition-transform group-hover:scale-110" style="background-color: #fceae3; color: var(--primary);"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></div>
+                    <h2 class="text-xl font-bold text-gray-800">Criador de Receitas</h2><p class="text-gray-500 mt-1">Crie e guarde suas próprias receitas</p>
+                </button>
+                <!-- Card Livro de Receitas -->
+                <button data-target="book-page" class="navigate-btn group bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all text-left flex flex-col items-center text-center">
+                    <div class="bg-green-100 text-green-600 p-4 rounded-full mb-4 transition-transform group-hover:scale-110" style="background-color: #e7eadc; color: var(--secondary);"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg></div>
+                    <h2 class="text-xl font-bold text-gray-800">Meu Livro de Receitas</h2><p class="text-gray-500 mt-1">Veja suas receitas salvas</p>
+                </button>
+                <!-- Card Lista de Compras -->
+                <button data-target="shopping-list-page" class="navigate-btn group bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all text-left flex flex-col items-center text-center">
+                    <div class="bg-yellow-100 text-yellow-600 p-4 rounded-full mb-4 transition-transform group-hover:scale-110" style="background-color: #fff6d5; color: #E4A11B;"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
+                    <h2 class="text-xl font-bold text-gray-800">Lista de Compras</h2><p class="text-gray-500 mt-1">Organize seus ingredientes</p>
+                </button>
+                 <!-- Card Sugestão do Chef (Gemini) -->
+                <button data-target="chef-suggestion-page" class="navigate-btn group bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all text-left flex flex-col items-center text-center md:col-span-2 lg:col-span-3">
+                    <div class="bg-purple-100 text-purple-600 p-4 rounded-full mb-4 transition-transform group-hover:scale-110"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg></div>
+                    <h2 class="text-xl font-bold text-gray-800">Sugestão do Chef (IA)</h2><p class="text-gray-500 mt-1">Não sabe o que cozinhar? Peça uma ideia para a nossa IA!</p>
+                </button>
             </div>
-          </div>
-          <div class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">
-              Ingredientes Atuais
-            </h2>
-            <ul
-              id="ingredientList"
-              class="space-y-3 max-h-40 overflow-y-auto no-scrollbar pr-2"
-            >
-              <li id="emptyIngredientMessage" class="text-center text-gray-500">
-                Nenhum ingrediente adicionado.
-              </li>
-            </ul>
-          </div>
-          <button
-            id="addRecipeBtn"
-            class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 text-base sm:text-lg"
-          >
-            Adicionar Receita ao Livro
-          </button>
         </div>
-      </div>
+        
+        <!-- PÁGINA SUGESTÃO DO CHEF (GEMINI) -->
+        <div id="chef-suggestion-page" class="page"><div class="max-w-2xl mx-auto"><div class="flex items-center mb-6"><button data-target="menu-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 class="text-3xl font-bold text-gray-800">Sugestão do Chef</h1></div><div class="bg-white p-6 rounded-xl shadow-lg"><p class="mb-4 text-gray-600">Descreva o tipo de prato que você gostaria. Seja vago ou específico! Ex: "algo rápido para o almoço com frango" ou "uma sobremesa vegana com chocolate".</p><textarea id="chef-prompt" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary" placeholder="Digite seu desejo aqui..."></textarea><button id="get-suggestion-btn" class="w-full mt-4 p-3 rounded-lg btn-primary font-semibold">Perguntar ao Chef</button><div id="suggestion-result" class="mt-6"></div></div></div></div>
 
-      <!-- PÁGINA DO LIVRO DE RECEITAS -->
-      <div id="book-page" class="page">
-        <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-          <div class="flex items-center mb-6">
-            <button
-              data-target="menu-page"
-              class="navigate-btn text-gray-500 hover:text-blue-600 mr-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </button>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
-              Meu Livro de Receitas
-            </h1>
-          </div>
-          <div id="recipeBook" class="space-y-4">
-            <p id="emptyBookMessage" class="text-center text-gray-500 pt-8">
-              Nenhuma receita no seu livro ainda.
-            </p>
-          </div>
-        </div>
-      </div>
+        <!-- PÁGINA DO CRIADOR DE RECEITAS -->
+        <div id="creator-page" class="page"><div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg h-fit"><div class="flex items-center mb-6"><button data-target="menu-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 class="text-3xl font-bold text-gray-800">Criar Receita</h1></div>
+            <div class="space-y-6">
+                <div><label for="recipeName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Receita</label><input type="text" id="recipeName" placeholder="Ex: Bolo de Chocolate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"></div>
+                <div><label for="recipeDescription" class="block text-sm font-medium text-gray-700 mb-1">Descrição / Modo de Preparo</label><textarea id="recipeDescription" rows="4" placeholder="Ex: Misture os ingredientes secos primeiro..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"></textarea></div>
+                
+                <!-- Image Generation Section -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Imagem da Receita</label>
+                    <div id="image-preview-container" class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-2"><span class="text-gray-500">Pré-visualização da Imagem</span></div>
+                    <input type="hidden" id="recipeImageUrl">
+                    <button id="generate-image-btn" class="w-full p-2 rounded-lg btn-secondary font-semibold">Gerar Imagem com IA</button>
+                    <div id="image-loader" class="hidden w-full flex-col items-center justify-center mt-2"><div class="loader"></div><p class="mt-2 text-sm text-gray-600">Gerando imagem... Isso pode levar um momento.</p></div>
+                </div>
 
-      <!-- PÁGINA DE VISUALIZAÇÃO DA RECEITA -->
-      <div id="recipe-view-page" class="page">
-        <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-          <div class="flex items-center mb-6">
-            <button
-              data-target="book-page"
-              class="navigate-btn text-gray-500 hover:text-blue-600 mr-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </button>
-            <h1
-              id="view-recipe-name"
-              class="text-2xl sm:text-3xl font-bold text-gray-800"
-            ></h1>
-          </div>
-          <div id="view-recipe-content"></div>
-        </div>
-      </div>
-
-      <!-- PÁGINA DA LISTA DE COMPRAS -->
-      <div id="shopping-list-page" class="page">
-        <div
-          class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg relative pb-24"
-        >
-          <div class="flex items-center mb-6">
-            <button
-              data-target="menu-page"
-              class="navigate-btn text-gray-500 hover:text-blue-600 mr-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </button>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
-              Lista de Compras
-            </h1>
-          </div>
-          <div id="shoppingListContainer">
-            <!-- Seção de itens pendentes -->
-            <div id="pending-section">
-              <h3
-                class="text-lg font-semibold text-gray-700 mt-6 mb-3 border-b pb-2"
-              >
-                A Comprar
-              </h3>
-              <div id="shoppingListPendingContainer" class="space-y-3"></div>
+                <div class="bg-gray-50 p-4 rounded-lg"><h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Ingredientes</h2><div class="flex space-x-2 mb-4"><input type="text" id="ingredientInput" placeholder="Ex: 2 xícaras de farinha" class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"><button id="addIngredientBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 shrink-0">+</button></div><ul id="ingredientList" class="space-y-3 max-h-40 overflow-y-auto pr-2"><li id="emptyIngredientMessage" class="text-center text-gray-500">Nenhum ingrediente adicionado.</li></ul></div>
+                <button id="addRecipeBtn" class="w-full p-3 rounded-lg btn-primary font-bold text-lg">Salvar Receita</button>
             </div>
-            <!-- Seção de itens comprados -->
-            <div id="bought-section">
-              <h3
-                class="text-lg font-semibold text-gray-700 mt-8 mb-3 border-b pb-2"
-              >
-                Comprados
-              </h3>
-              <div id="shoppingListBoughtContainer" class="space-y-3"></div>
-            </div>
-            <p
-              id="emptyShoppingListMessage"
-              class="text-center text-gray-500 pt-8"
-            >
-              Sua lista de compras está vazia.
-            </p>
-          </div>
-          <button
-            id="clearShoppingListBtn"
-            class="w-full mt-8 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 disabled:bg-red-300"
-          >
-            Limpar Itens Comprados
-          </button>
-          <button
-            data-target="add-item-page"
-            class="navigate-btn fixed bottom-8 right-8 bg-yellow-500 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-600 transition-transform hover:scale-110"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
+        </div></div>
 
-      <!-- PÁGINA DE ADICIONAR PRODUTO -->
-      <div id="add-item-page" class="page">
-        <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-          <div class="flex items-center mb-6">
-            <button
-              data-target="shopping-list-page"
-              class="navigate-btn text-gray-500 hover:text-blue-600 mr-4"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </button>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">
-              Adicionar Produto
-            </h1>
-          </div>
-          <div class="mb-6 relative">
-            <label
-              for="manualItemInput"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Produto</label
-            >
-            <div class="flex space-x-2">
-              <input
-                type="text"
-                id="manualItemInput"
-                placeholder="Ex: Guardanapos"
-                class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-              /><button
-                id="manualAddBtn"
-                class="bg-yellow-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-yellow-600 shrink-0"
-              >
-                +
-              </button>
-            </div>
-            <div
-              id="autocomplete-suggestions"
-              class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg mt-1 shadow-lg hidden"
-            ></div>
-          </div>
-        </div>
-      </div>
+        <!-- PÁGINA DO LIVRO DE RECEITAS -->
+        <div id="book-page" class="page"><div class="max-w-4xl mx-auto"><div class="flex items-center mb-6"><button data-target="menu-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 class="text-3xl font-bold text-gray-800">Meu Livro de Receitas</h1></div><div id="recipeBook" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"><p id="emptyBookMessage" class="col-span-full text-center text-gray-500 pt-8 text-lg">Nenhuma receita no seu livro ainda.</p></div></div></div>
+        
+        <!-- PÁGINA DE VISUALIZAÇÃO DA RECEITA -->
+        <div id="recipe-view-page" class="page"><div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg"><div class="flex items-center mb-6"><button data-target="book-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 id="view-recipe-name" class="text-3xl font-bold text-gray-800"></h1></div><div id="view-recipe-content"></div></div></div>
+
+        <!-- PÁGINA DA LISTA DE COMPRAS -->
+        <div id="shopping-list-page" class="page"><div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg relative pb-24"><div class="flex items-center justify-between mb-6"><div class="flex items-center"><button data-target="menu-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 class="text-3xl font-bold text-gray-800">Lista de Compras</h1></div><button id="organize-list-btn" title="Organizar por Categoria (IA)" class="p-2 rounded-full hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg></button></div><div id="shoppingListContainer"></div><p id="emptyShoppingListMessage" class="text-center text-gray-500 pt-8">Sua lista de compras está vazia.</p><button id="clearShoppingListBtn" class="w-full mt-8 btn-primary bg-red-500 hover:bg-red-600 disabled:bg-red-300 font-semibold p-3 rounded-lg">Limpar Itens Comprados</button><button data-target="add-item-page" class="navigate-btn fixed bottom-8 right-8 btn-accent w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-400 transition-transform hover:scale-110"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg></button></div></div>
+
+        <!-- PÁGINA DE ADICIONAR PRODUTO -->
+        <div id="add-item-page" class="page"><div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg"><div class="flex items-center mb-6"><button data-target="shopping-list-page" class="navigate-btn text-gray-500 hover:text-gray-800 mr-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button><h1 class="text-3xl font-bold text-gray-800">Adicionar Produto</h1></div><div class="mb-6 relative"><label for="manualItemInput" class="block text-sm font-medium text-gray-700 mb-1">Produto</label><div class="flex space-x-2"><input type="text" id="manualItemInput" placeholder="Ex: Guardanapos" class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent"><button id="manualAddBtn" class="btn-accent px-5 py-2 rounded-lg font-semibold shrink-0">+</button></div><div id="autocomplete-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg mt-1 shadow-lg hidden"></div></div></div></div>
     </div>
 
     <script>
-      // --- Referências aos Elementos DOM ---
-      const recipeNameInput = document.getElementById('recipeName');
-      const recipeDescriptionInput =
-        document.getElementById('recipeDescription');
-      const ingredientInput = document.getElementById('ingredientInput');
-      const addIngredientBtn = document.getElementById('addIngredientBtn');
-      const ingredientList = document.getElementById('ingredientList');
-      const emptyIngredientMessage = document.getElementById(
-        'emptyIngredientMessage'
-      );
-      const addRecipeBtn = document.getElementById('addRecipeBtn');
-      const recipeBook = document.getElementById('recipeBook');
-      const emptyBookMessage = document.getElementById('emptyBookMessage');
-      const navigateBtns = document.querySelectorAll('.navigate-btn');
-      const pages = document.querySelectorAll('.page');
-      const shoppingListPendingContainer = document.getElementById(
-        'shoppingListPendingContainer'
-      );
-      const shoppingListBoughtContainer = document.getElementById(
-        'shoppingListBoughtContainer'
-      );
-      const emptyShoppingListMessage = document.getElementById(
-        'emptyShoppingListMessage'
-      );
-      const clearShoppingListBtn = document.getElementById(
-        'clearShoppingListBtn'
-      );
-      const manualItemInput = document.getElementById('manualItemInput');
-      const manualAddBtn = document.getElementById('manualAddBtn');
-      const autocompleteSuggestions = document.getElementById(
-        'autocomplete-suggestions'
-      );
-      const viewRecipeName = document.getElementById('view-recipe-name');
-      const viewRecipeContent = document.getElementById('view-recipe-content');
+        // --- Referências aos Elementos DOM ---
+        const pages = document.querySelectorAll('.page');
+        const navigateBtns = document.querySelectorAll('.navigate-btn');
+        // Creator Page
+        const recipeNameInput = document.getElementById('recipeName');
+        const recipeDescriptionInput = document.getElementById('recipeDescription');
+        const ingredientInput = document.getElementById('ingredientInput');
+        const addIngredientBtn = document.getElementById('addIngredientBtn');
+        const ingredientList = document.getElementById('ingredientList');
+        const emptyIngredientMessage = document.getElementById('emptyIngredientMessage');
+        const addRecipeBtn = document.getElementById('addRecipeBtn');
+        const generateImageBtn = document.getElementById('generate-image-btn');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const recipeImageUrlInput = document.getElementById('recipeImageUrl');
+        const imageLoader = document.getElementById('image-loader');
+        // Book Page
+        const recipeBook = document.getElementById('recipeBook');
+        const emptyBookMessage = document.getElementById('emptyBookMessage');
+        // Recipe View Page
+        const viewRecipeName = document.getElementById('view-recipe-name');
+        const viewRecipeContent = document.getElementById('view-recipe-content');
+        // Shopping List Page
+        const shoppingListContainer = document.getElementById('shoppingListContainer');
+        const emptyShoppingListMessage = document.getElementById('emptyShoppingListMessage');
+        const clearShoppingListBtn = document.getElementById('clearShoppingListBtn');
+        const organizeListBtn = document.getElementById('organize-list-btn');
+        // Add Item Page
+        const manualItemInput = document.getElementById('manualItemInput');
+        const manualAddBtn = document.getElementById('manualAddBtn');
+        const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+        // Chef Suggestion Page
+        const chefPromptInput = document.getElementById('chef-prompt');
+        const getSuggestionBtn = document.getElementById('get-suggestion-btn');
+        const suggestionResult = document.getElementById('suggestion-result');
 
-      // --- State Management & Storage ---
-      const RECIPES_STORAGE_KEY = 'recipeApp.recipes';
-      const SHOPPING_LIST_STORAGE_KEY = 'recipeApp.shoppingList';
-      const AUTOCOMPLETE_STORAGE_KEY = 'recipeApp.autocomplete';
 
-      let recipes = JSON.parse(localStorage.getItem(RECIPES_STORAGE_KEY)) || [];
-      let shoppingList =
-        JSON.parse(localStorage.getItem(SHOPPING_LIST_STORAGE_KEY)) || [];
+        // --- State Management & Storage ---
+        const RECIPES_STORAGE_KEY = 'recipeApp.recipes';
+        const SHOPPING_LIST_STORAGE_KEY = 'recipeApp.shoppingList';
+        const AUTOCOMPLETE_STORAGE_KEY = 'recipeApp.autocomplete';
+        
+        let recipes = JSON.parse(localStorage.getItem(RECIPES_STORAGE_KEY)) || [];
+        let shoppingList = JSON.parse(localStorage.getItem(SHOPPING_LIST_STORAGE_KEY)) || [];
 
-      const initialAutocompleteItems = [
-        'Farinha de trigo',
-        'Açúcar refinado',
-        'Açúcar mascavo',
-        'Ovos',
-        'Leite integral',
-        'Leite desnatado',
-        'Manteiga sem sal',
-        'Margarina',
-        'Fermento em pó',
-        'Bicarbonato de sódio',
-        'Sal',
-        'Óleo de soja',
-        'Azeite de oliva',
-        'Arroz agulhinha',
-        'Feijão carioca',
-        'Feijão preto',
-        'Lentilha',
-        'Grão de bico',
-        'Macarrão espaguete',
-        'Macarrão penne',
-        'Molho de tomate',
-        'Extrato de tomate',
-        'Cebola',
-        'Alho',
-        'Batata',
-        'Cenoura',
-        'Tomate',
-        'Pimentão',
-        'Alface',
-        'Rúcula',
-        'Agrião',
-        'Brócolis',
-        'Couve-flor',
-        'Abobrinha',
-        'Berinjela',
-        'Limão',
-        'Laranja',
-        'Banana',
-        'Maçã',
-        'Frango (filé)',
-        'Frango (coxa/sobrecoxa)',
-        'Carne moída',
-        'Bife (alcatra)',
-        'Bisteca de porco',
-        'Linguiça toscana',
-        'Bacon',
-        'Peixe (tilápia)',
-        'Sardinha em lata',
-        'Atum em lata',
-        'Queijo muçarela',
-        'Queijo prato',
-        'Queijo parmesão ralado',
-        'Requeijão',
-        'Presunto',
-        'Peito de peru',
-        'Pão de forma',
-        'Pão francês',
-        'Torradas',
-        'Café em pó',
-        'Filtro de café',
-        'Chá (sachê)',
-        'Achocolatado em pó',
-        'Detergente',
-        'Esponja de aço',
-        'Esponja de louça',
-        'Guardanapos',
-        'Papel toalha',
-        'Papel higiênico',
-        'Sabão em pó',
-        'Amaciante',
-        'Água sanitária',
-        'Desinfetante',
-      ];
-      let savedAutocompleteItems =
-        JSON.parse(localStorage.getItem(AUTOCOMPLETE_STORAGE_KEY)) || [];
-      let autocompleteItems = [
-        ...new Set([...initialAutocompleteItems, ...savedAutocompleteItems]),
-      ];
+        const initialAutocompleteItems = ["Farinha de trigo", "Açúcar refinado", "Ovos", "Leite integral", "Manteiga sem sal", "Fermento em pó", "Sal", "Óleo de soja", "Azeite de oliva", "Arroz", "Feijão", "Macarrão", "Molho de tomate", "Cebola", "Alho", "Batata", "Cenoura", "Tomate", "Alface", "Frango", "Carne moída", "Queijo muçarela", "Presunto", "Pão de forma", "Café em pó", "Detergente", "Guardanapos", "Papel toalha"];
+        let savedAutocompleteItems = JSON.parse(localStorage.getItem(AUTOCOMPLETE_STORAGE_KEY)) || [];
+        let autocompleteItems = [...new Set([...initialAutocompleteItems, ...savedAutocompleteItems])];
 
-      function saveRecipes() {
-        localStorage.setItem(RECIPES_STORAGE_KEY, JSON.stringify(recipes));
-      }
-
-      function saveShoppingList() {
-        localStorage.setItem(
-          SHOPPING_LIST_STORAGE_KEY,
-          JSON.stringify(shoppingList)
-        );
-      }
-
-      function saveAutocompleteItems() {
-        const customItems = autocompleteItems.filter(
-          (item) => !initialAutocompleteItems.includes(item)
-        );
-        localStorage.setItem(
-          AUTOCOMPLETE_STORAGE_KEY,
-          JSON.stringify(customItems)
-        );
-      }
-
-      // --- Data Migration for Shopping List ---
-      function migrateShoppingList() {
-        if (
-          shoppingList.length > 0 &&
-          (typeof shoppingList[0] === 'string' ||
-            !shoppingList[0].hasOwnProperty('quantity'))
-        ) {
-          shoppingList = shoppingList.map((item) => {
-            const text = typeof item === 'string' ? item : item.text;
-            return { text: text, quantity: 1, bought: false };
-          });
-          saveShoppingList();
+        function saveRecipes() { localStorage.setItem(RECIPES_STORAGE_KEY, JSON.stringify(recipes)); }
+        function saveShoppingList() { localStorage.setItem(SHOPPING_LIST_STORAGE_KEY, JSON.stringify(shoppingList)); }
+        function saveAutocompleteItems() {
+            const customItems = autocompleteItems.filter(item => !initialAutocompleteItems.includes(item));
+            localStorage.setItem(AUTOCOMPLETE_STORAGE_KEY, JSON.stringify(customItems));
         }
-      }
 
-      // --- Navegação ---
-      function showPage(pageId) {
-        pages.forEach((page) => page.classList.remove('active'));
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) targetPage.classList.add('active');
-        if (pageId === 'book-page') renderAllRecipes();
-        if (pageId === 'shopping-list-page') renderShoppingList();
-      }
+        // --- Data Migration for Shopping List ---
+        function migrateShoppingList() {
+            if (shoppingList.length > 0 && (typeof shoppingList[0] === 'string' || !shoppingList[0].hasOwnProperty('quantity'))) {
+                shoppingList = shoppingList.map(item => {
+                    const text = typeof item === 'string' ? item : item.text;
+                    return { text: text, quantity: 1, bought: false, category: 'Outros' };
+                });
+                saveShoppingList();
+            }
+        }
 
-      navigateBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const targetPageId = btn.getAttribute('data-target');
-          showPage(targetPageId);
-        });
-      });
+        // --- Navegação ---
+        function showPage(pageId, data = null) {
+            pages.forEach(page => page.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) targetPage.classList.add('active');
+            
+            // Page-specific render functions
+            if (pageId === 'book-page') renderAllRecipes();
+            if (pageId === 'shopping-list-page') renderShoppingList();
+            if (pageId === 'recipe-view-page' && data) renderRecipeView(data);
+            if (pageId === 'creator-page') resetCreatorForm();
+        }
+        
+        // --- Gemini API Functions ---
+        async function callGemini(prompt, isJson = false, schema = null) {
+            const apiKey = ""; // API Key will be injected by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            let payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }]
+            };
 
-      // --- Funções da Aplicação ---
-      function addIngredient() {
-        const ingredientText = ingredientInput.value.trim();
-        if (ingredientText === '') return;
-        if (emptyIngredientMessage)
-          emptyIngredientMessage.style.display = 'none';
-        const li = document.createElement('li');
-        li.className = 'flex items-center bg-gray-50 p-3 rounded-lg';
-        li.innerHTML = `<input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 cursor-pointer"><span class="ml-3 text-gray-700">${ingredientText}</span><button class="delete-ingredient-btn ml-auto text-gray-400 hover:text-red-500 font-bold text-xl px-2 shrink-0">&times;</button>`;
-        li.querySelector('input[type="checkbox"]').addEventListener(
-          'change',
-          (e) => e.currentTarget.parentElement.classList.toggle('checked-item')
-        );
-        li.querySelector('.delete-ingredient-btn').addEventListener(
-          'click',
-          (e) => {
-            e.currentTarget.parentElement.remove();
-            if (ingredientList.children.length <= 1)
-              emptyIngredientMessage.style.display = 'block';
-          }
-        );
-        ingredientList.appendChild(li);
-        ingredientInput.value = '';
-        ingredientInput.focus();
-      }
+            if (isJson && schema) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                };
+            }
 
-      function renderRecipeView(recipe) {
-        viewRecipeName.textContent = recipe.name;
-        let ingredientsHtml = recipe.ingredients
-          .map(
-            (ing) =>
-              `<li class="flex items-center"><input type="checkbox" data-ingredient-name="${ing}" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 recipe-ingredient-checkbox"><label class="ml-3 text-gray-700">${ing}</label></li>`
-          )
-          .join('');
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-        viewRecipeContent.innerHTML = `
-                <p class="text-gray-600 mb-4 whitespace-pre-wrap">${
-                  recipe.description || 'Nenhuma descrição fornecida.'
-                }</p>
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.warn("API response might be empty or malformed", result);
+                    if (result.promptFeedback && result.promptFeedback.blockReason) {
+                         throw new Error(`API call blocked: ${result.promptFeedback.blockReason}`);
+                    }
+                    throw new Error("Resposta inválida da API.");
+                }
+            } catch (error) {
+                console.error("Erro na chamada da API Gemini:", error);
+                return null;
+            }
+        }
+
+        async function generateImageWithAI() {
+            const recipeName = recipeNameInput.value.trim();
+            if (!recipeName) {
+                alert("Por favor, insira um nome para a receita primeiro.");
+                return;
+            }
+
+            generateImageBtn.disabled = true;
+            imageLoader.classList.remove('hidden');
+            imageLoader.classList.add('flex');
+
+            const prompt = `Uma foto de alta qualidade, estilo editorial de comida, de um prato de "${recipeName}". Fundo claro e limpo.`;
+            const payload = { instances: [{ prompt: prompt }], parameters: { "sampleCount": 1 } };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.predictions && result.predictions[0].bytesBase64Encoded) {
+                    const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                    recipeImageUrlInput.value = imageUrl;
+                    imagePreviewContainer.innerHTML = `<img src="${imageUrl}" class="w-full h-full object-cover rounded-lg">`;
+                } else {
+                    throw new Error("Não foi possível gerar a imagem.");
+                }
+            } catch (error) {
+                console.error("Erro na geração de imagem:", error);
+                imagePreviewContainer.innerHTML = `<span class="text-red-500">Erro ao gerar imagem.</span>`;
+            } finally {
+                generateImageBtn.disabled = false;
+                imageLoader.classList.add('hidden');
+                imageLoader.classList.remove('flex');
+            }
+        }
+
+        async function getChefSuggestion() {
+            const userPrompt = chefPromptInput.value.trim();
+            if (!userPrompt) return;
+
+            getSuggestionBtn.disabled = true;
+            suggestionResult.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+
+            const prompt = `Aja como um chef de cozinha criativo. Baseado no pedido do usuário, crie uma receita simples e deliciosa. O pedido é: "${userPrompt}". Forneça um nome para a receita, uma descrição curta e cativante (modo de preparo) e uma lista de ingredientes.`;
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    "recipeName": { "type": "STRING", "description": "Nome criativo da receita." },
+                    "description": { "type": "STRING", "description": "Modo de preparo simples e direto." },
+                    "ingredients": { "type": "ARRAY", "items": { "type": "STRING" }, "description": "Lista de ingredientes." }
+                },
+                required: ["recipeName", "description", "ingredients"]
+            };
+
+            const resultText = await callGemini(prompt, true, schema);
+            if (resultText) {
+                try {
+                    const recipeData = JSON.parse(resultText);
+                    suggestionResult.innerHTML = `
+                        <div class="border border-gray-200 p-4 rounded-lg">
+                            <h3 class="text-2xl font-bold font-serif mb-2">${recipeData.recipeName}</h3>
+                            <p class="text-gray-600 mb-4">${recipeData.description.replace(/\n/g, '<br>')}</p>
+                            <h4 class="font-semibold mb-2">Ingredientes:</h4>
+                            <ul class="list-disc list-inside text-gray-600">${recipeData.ingredients.map(ing => `<li>${ing}</li>`).join('')}</ul>
+                            <button class="add-suggestion-to-book-btn mt-4 w-full btn-secondary p-2 rounded-lg font-semibold">Adicionar ao Meu Livro</button>
+                        </div>
+                    `;
+                    suggestionResult.querySelector('.add-suggestion-to-book-btn').addEventListener('click', () => {
+                        addRecipe(recipeData.recipeName, recipeData.description, recipeData.ingredients, '');
+                        showPage('book-page');
+                    });
+                } catch (e) {
+                    suggestionResult.innerHTML = `<p class="text-red-500">Houve um erro ao processar a sugestão da IA.</p>`;
+                }
+            } else {
+                suggestionResult.innerHTML = `<p class="text-red-500">Não foi possível obter uma sugestão. Tente novamente.</p>`;
+            }
+            getSuggestionBtn.disabled = false;
+        }
+        
+        async function organizeShoppingList() {
+            if (shoppingList.filter(item => !item.bought).length === 0) return;
+
+            organizeListBtn.disabled = true;
+            const originalIcon = organizeListBtn.innerHTML;
+            organizeListBtn.innerHTML = '<div class="loader !w-6 !h-6 !border-2"></div>';
+
+            const itemsToCategorize = shoppingList.filter(item => !item.bought).map(item => item.text);
+            const prompt = `Categorize a seguinte lista de compras: ${itemsToCategorize.join(', ')}. As categorias devem ser: Laticínios, Carnes e Peixes, Frutas e Vegetais, Padaria, Mercearia, Bebidas, Limpeza, Higiene, Outros.`;
+            const schema = {
+                type: "OBJECT",
+                properties: {
+                    "categorized_items": {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                "item": { "type": "STRING" },
+                                "category": { "type": "STRING" }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const resultText = await callGemini(prompt, true, schema);
+            if (resultText) {
+                try {
+                    const categorizedData = JSON.parse(resultText);
+                    categorizedData.categorized_items.forEach(catItem => {
+                        const itemInList = shoppingList.find(i => i.text.toLowerCase() === catItem.item.toLowerCase());
+                        if (itemInList) {
+                            itemInList.category = catItem.category;
+                        }
+                    });
+                    saveShoppingList();
+                    renderShoppingList(true); // Re-render in categorized view
+                } catch (e) {
+                    console.error("Erro ao categorizar lista:", e);
+                }
+            }
+            organizeListBtn.disabled = false;
+            organizeListBtn.innerHTML = originalIcon;
+        }
+
+
+        // --- Funções de Renderização e Lógica de UI ---
+        
+        function addIngredient() {
+            const ingredientText = ingredientInput.value.trim();
+            if (ingredientText === '') return;
+            if (emptyIngredientMessage) emptyIngredientMessage.style.display = 'none';
+            const li = document.createElement('li');
+            li.className = 'flex items-center bg-gray-50 p-3 rounded-lg';
+            li.innerHTML = `
+                <span class="ml-3 text-gray-700">${ingredientText}</span>
+                <button class="delete-ingredient-btn ml-auto text-gray-400 hover:text-red-500 font-bold text-xl px-2 shrink-0">&times;</button>
+            `;
+            li.querySelector('.delete-ingredient-btn').addEventListener('click', (e) => {
+                e.currentTarget.parentElement.remove();
+                if (ingredientList.children.length === 1) {
+                    emptyIngredientMessage.style.display = 'block';
+                }
+            });
+            ingredientList.appendChild(li);
+            ingredientInput.value = '';
+            ingredientInput.focus();
+        }
+
+        function renderRecipeView(recipe) {
+            viewRecipeName.textContent = recipe.name;
+            let ingredientsHtml = recipe.ingredients.map(ing => `<li class="flex items-center"><input type="checkbox" data-ingredient-name="${ing}" class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 recipe-ingredient-checkbox"><label class="ml-3 text-gray-700">${ing}</label></li>`).join('');
+            
+            viewRecipeContent.innerHTML = `
+                <img src="${recipe.imageUrl || 'https://placehold.co/600x400/FFF8E7/E87A5D?text=Sem+Imagem'}" alt="Foto de ${recipe.name}" class="w-full h-64 object-cover rounded-lg mb-4">
+                <p class="text-gray-600 mb-4 whitespace-pre-wrap">${recipe.description || 'Nenhuma descrição fornecida.'}</p>
                 <h4 class="font-semibold text-gray-700 mb-2">Ingredientes:</h4>
                 <ul class="space-y-2 text-gray-600 mb-4">${ingredientsHtml}</ul>
                 <div class="flex flex-col sm:flex-row gap-2 mt-6">
-                    <button class="add-selected-btn w-full bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600">Adicionar Selecionados</button>
-                    <button class="add-all-btn w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600">Adicionar Todos</button>
+                    <button class="add-selected-btn w-full btn-secondary p-3 rounded-lg font-semibold">Adicionar Selecionados</button>
+                    <button class="add-all-btn w-full btn-primary p-3 rounded-lg font-semibold">Adicionar Todos</button>
                 </div>
             `;
 
-        viewRecipeContent
-          .querySelector('.add-selected-btn')
-          .addEventListener('click', (e) => {
-            const button = e.currentTarget;
-            const selectedCheckboxes = viewRecipeContent.querySelectorAll(
-              '.recipe-ingredient-checkbox:checked'
-            );
-            const ingredientsToAdd = Array.from(selectedCheckboxes).map(
-              (cb) => cb.dataset.ingredientName
-            );
-            addItemsToShoppingList(ingredientsToAdd, button, 'Adicionado!');
-          });
+            viewRecipeContent.querySelector('.add-selected-btn').addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                const selectedCheckboxes = viewRecipeContent.querySelectorAll('.recipe-ingredient-checkbox:checked');
+                const ingredientsToAdd = Array.from(selectedCheckboxes).map(cb => cb.dataset.ingredientName);
+                addItemsToShoppingList(ingredientsToAdd, button, 'Adicionado!');
+            });
 
-        viewRecipeContent
-          .querySelector('.add-all-btn')
-          .addEventListener('click', (e) => {
-            const button = e.currentTarget;
-            addItemsToShoppingList(
-              recipe.ingredients,
-              button,
-              'Todos Adicionados!'
-            );
-          });
+            viewRecipeContent.querySelector('.add-all-btn').addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                addItemsToShoppingList(recipe.ingredients, button, 'Todos Adicionados!');
+            });
+        }
 
-        showPage('recipe-view-page');
-      }
-
-      function addItemsToShoppingList(items, button, feedbackText) {
-        if (items.length > 0) {
-          items.forEach((itemText) => {
-            const existingItem = shoppingList.find(
-              (item) => item.text.toLowerCase() === itemText.toLowerCase()
-            );
-            if (existingItem) {
-              existingItem.quantity++;
-            } else {
-              shoppingList.push({ text: itemText, quantity: 1, bought: false });
+        function addItemsToShoppingList(items, button, feedbackText) {
+            if (items.length > 0) {
+                items.forEach(itemText => {
+                    const existingItem = shoppingList.find(item => item.text.toLowerCase() === itemText.toLowerCase());
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        shoppingList.push({ text: itemText, quantity: 1, bought: false, category: 'Outros' });
+                    }
+                });
+                saveShoppingList();
+                
+                if (button) {
+                    const originalText = button.textContent;
+                    button.textContent = feedbackText;
+                    button.disabled = true;
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 1500);
+                }
             }
-          });
-          saveShoppingList();
-
-          if (button) {
-            const originalText = button.textContent;
-            button.textContent = feedbackText;
-            button.disabled = true;
-            setTimeout(() => {
-              button.textContent = originalText;
-              button.disabled = false;
-            }, 1500);
-          }
-        }
-      }
-
-      function createRecipeElement(recipe) {
-        const recipeEntry = document.createElement('div');
-        recipeEntry.className =
-          'bg-gray-50 border border-gray-200 rounded-lg overflow-hidden';
-        const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
-        const deleteIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
-
-        recipeEntry.innerHTML = `<div class="flex items-center p-4"><h3 class="text-lg font-semibold text-gray-800 mr-4 min-w-0 break-words">${recipe.name}</h3><div class="ml-auto flex items-center space-x-4 shrink-0"><button title="Ver Receita" class="view-recipe-btn text-gray-500 hover:text-blue-600">${eyeIcon}</button><button title="Excluir Receita" class="delete-recipe-btn text-gray-500 hover:text-red-600">${deleteIcon}</button></div></div>`;
-
-        recipeEntry
-          .querySelector('.view-recipe-btn')
-          .addEventListener('click', () => renderRecipeView(recipe));
-        recipeEntry
-          .querySelector('.delete-recipe-btn')
-          .addEventListener('click', () => {
-            recipes = recipes.filter((r) => r.id !== recipe.id);
-            saveRecipes();
-            renderAllRecipes();
-          });
-        return recipeEntry;
-      }
-
-      function renderAllRecipes() {
-        recipeBook.innerHTML = '';
-        if (recipes.length === 0) {
-          recipeBook.appendChild(emptyBookMessage);
-          emptyBookMessage.style.display = 'block';
-        } else {
-          emptyBookMessage.style.display = 'none';
-          recipes.forEach((recipe) =>
-            recipeBook.appendChild(createRecipeElement(recipe))
-          );
-        }
-      }
-
-      function handleAddRecipe() {
-        const recipeName = recipeNameInput.value.trim();
-        const recipeDescription = recipeDescriptionInput.value.trim();
-        const ingredients = Array.from(
-          ingredientList.querySelectorAll(
-            'li:not(#emptyIngredientMessage) span'
-          )
-        ).map((span) => span.textContent);
-        if (!recipeName || ingredients.length === 0) {
-          alert(
-            'O nome da receita e pelo menos um ingrediente são obrigatórios.'
-          );
-          return;
-        }
-        recipes.push({
-          id: Date.now(),
-          name: recipeName,
-          description: recipeDescription,
-          ingredients: ingredients,
-        });
-        saveRecipes();
-        clearCreatorForm();
-        showPage('book-page');
-      }
-
-      function clearCreatorForm() {
-        recipeNameInput.value = '';
-        recipeDescriptionInput.value = '';
-        ingredientInput.value = '';
-        ingredientList.innerHTML = '';
-        ingredientList.appendChild(emptyIngredientMessage);
-        emptyIngredientMessage.style.display = 'block';
-      }
-
-      function renderShoppingList() {
-        shoppingListPendingContainer.innerHTML = '';
-        shoppingListBoughtContainer.innerHTML = '';
-
-        const pendingItems = shoppingList.filter((item) => !item.bought);
-        const boughtItems = shoppingList.filter((item) => item.bought);
-
-        const pendingSection = document.getElementById('pending-section');
-        const boughtSection = document.getElementById('bought-section');
-
-        if (shoppingList.length === 0) {
-          emptyShoppingListMessage.style.display = 'block';
-          pendingSection.style.display = 'none';
-          boughtSection.style.display = 'none';
-        } else {
-          emptyShoppingListMessage.style.display = 'none';
-          pendingSection.style.display =
-            pendingItems.length > 0 ? 'block' : 'none';
-          boughtSection.style.display =
-            boughtItems.length > 0 ? 'block' : 'none';
         }
 
-        const createShoppingListItem = (item, container) => {
-          const li = document.createElement('li');
-          li.className = 'flex items-center bg-gray-50 p-3 rounded-lg';
-          if (item.bought) li.classList.add('checked-item');
-
-          li.innerHTML = `
-                    <input type="checkbox" ${
-                      item.bought ? 'checked' : ''
-                    } class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer">
-                    <span class="ml-3 text-gray-700">${item.text}</span>
-                    <div class="ml-auto flex items-center space-x-2">
-                        <button class="quantity-btn text-lg font-bold text-gray-500 hover:text-gray-800" data-action="decrease">-</button>
-                        <span class="font-semibold w-8 text-center">${
-                          item.quantity
-                        }</span>
-                        <button class="quantity-btn text-lg font-bold text-gray-500 hover:text-gray-800" data-action="increase">+</button>
+        function createRecipeElement(recipe) {
+            const recipeCard = document.createElement('div');
+            recipeCard.className = 'bg-white rounded-xl shadow-md overflow-hidden group transition-all hover:shadow-xl';
+            recipeCard.innerHTML = `
+                <div class="h-40 bg-gray-200">
+                    <img src="${recipe.imageUrl || 'https://placehold.co/400x300/FFF8E7/E87A5D?text=Sabor+na+Tela'}" alt="Foto de ${recipe.name}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-bold font-serif text-gray-800 truncate">${recipe.name}</h3>
+                    <div class="flex justify-between items-center mt-4">
+                        <button class="view-recipe-btn text-sm btn-primary px-3 py-1 rounded-md font-semibold">Ver Receita</button>
+                        <button class="delete-recipe-btn p-2 rounded-full hover:bg-red-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                     </div>
-                `;
+                </div>
+            `;
+            
+            recipeCard.querySelector('.view-recipe-btn').addEventListener('click', () => showPage('recipe-view-page', recipe));
+            recipeCard.querySelector('.delete-recipe-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                // A custom modal would be better than a native confirm dialog.
+                recipes = recipes.filter(r => r.id !== recipe.id);
+                saveRecipes();
+                renderAllRecipes();
+            });
+            return recipeCard;
+        }
 
-          li.querySelector('input[type="checkbox"]').addEventListener(
-            'change',
-            () => {
-              item.bought = !item.bought;
-              saveShoppingList();
-              renderShoppingList();
+        function renderAllRecipes() {
+            recipeBook.innerHTML = '';
+            if (recipes.length === 0) {
+                recipeBook.appendChild(emptyBookMessage);
+            } else {
+                recipes.forEach(recipe => recipeBook.appendChild(createRecipeElement(recipe)));
             }
-          );
+        }
 
-          li.querySelectorAll('.quantity-btn').forEach((button) => {
-            button.addEventListener('click', () => {
-              const action = button.dataset.action;
-              if (action === 'increase') {
-                item.quantity++;
-              } else if (action === 'decrease') {
-                item.quantity--;
-              }
+        function addRecipe(name, description, ingredients, imageUrl) {
+            recipes.push({ id: Date.now(), name, description, ingredients, imageUrl });
+            saveRecipes();
+        }
+        
+        function handleAddRecipe() {
+            const recipeName = recipeNameInput.value.trim();
+            const recipeDescription = recipeDescriptionInput.value.trim();
+            const ingredients = Array.from(ingredientList.querySelectorAll('li span')).map(span => span.textContent);
+            const imageUrl = recipeImageUrlInput.value;
 
-              if (item.quantity <= 0) {
-                shoppingList = shoppingList.filter((i) => i.text !== item.text);
-              }
+            if (!recipeName || ingredients.length === 0) {
+                alert('O nome da receita e pelo menos um ingrediente são obrigatórios.');
+                return;
+            }
+            addRecipe(recipeName, recipeDescription, ingredients, imageUrl);
+            showPage('book-page');
+        }
+        
+        function resetCreatorForm() {
+            recipeNameInput.value = '';
+            recipeDescriptionInput.value = '';
+            ingredientList.innerHTML = '';
+            ingredientList.appendChild(emptyIngredientMessage);
+            recipeImageUrlInput.value = '';
+            imagePreviewContainer.innerHTML = '<span class="text-gray-500">Pré-visualização da Imagem</span>';
+        }
 
-              saveShoppingList();
-              renderShoppingList();
+        function renderShoppingList(categorized = false) {
+            shoppingListContainer.innerHTML = '';
+            
+            if (shoppingList.length === 0) {
+                shoppingListContainer.appendChild(emptyShoppingListMessage);
+                emptyShoppingListMessage.style.display = 'block';
+                clearShoppingListBtn.disabled = true;
+                return;
+            }
+            emptyShoppingListMessage.style.display = 'none';
+            
+            const boughtItems = shoppingList.filter(item => item.bought);
+            clearShoppingListBtn.disabled = boughtItems.length === 0;
+
+            if (categorized) {
+                const categories = [...new Set(shoppingList.filter(i => !i.bought).map(i => i.category || 'Outros'))];
+                categories.sort();
+
+                categories.forEach(category => {
+                    const categoryWrapper = document.createElement('div');
+                    categoryWrapper.innerHTML = `<h3 class="text-lg font-semibold text-gray-700 mt-6 mb-3 border-b pb-2">${category}</h3>`;
+                    const categoryList = document.createElement('div');
+                    categoryList.className = 'space-y-3';
+                    
+                    shoppingList.filter(item => !item.bought && (item.category || 'Outros') === category).forEach(item => {
+                        categoryList.appendChild(createShoppingListItem(item));
+                    });
+                    categoryWrapper.appendChild(categoryList);
+                    shoppingListContainer.appendChild(categoryWrapper);
+                });
+
+            } else {
+                const pendingItems = shoppingList.filter(item => !item.bought);
+                if (pendingItems.length > 0) {
+                    const pendingWrapper = document.createElement('div');
+                    pendingWrapper.innerHTML = `<h3 class="text-lg font-semibold text-gray-700 mt-6 mb-3 border-b pb-2">A Comprar</h3>`;
+                    const pendingList = document.createElement('div');
+                    pendingList.className = 'space-y-3';
+                    pendingItems.forEach(item => pendingList.appendChild(createShoppingListItem(item)));
+                    pendingWrapper.appendChild(pendingList);
+                    shoppingListContainer.appendChild(pendingWrapper);
+                }
+            }
+            
+            if (boughtItems.length > 0) {
+                const boughtWrapper = document.createElement('div');
+                boughtWrapper.innerHTML = `<h3 class="text-lg font-semibold text-gray-700 mt-8 mb-3 border-b pb-2">Comprados</h3>`;
+                const boughtList = document.createElement('div');
+                boughtList.className = 'space-y-3';
+                boughtItems.forEach(item => boughtList.appendChild(createShoppingListItem(item)));
+                boughtWrapper.appendChild(boughtList);
+                shoppingListContainer.appendChild(boughtWrapper);
+            }
+        }
+
+        function createShoppingListItem(item) {
+            const li = document.createElement('li');
+            li.className = 'flex items-center bg-gray-50 p-3 rounded-lg';
+            if(item.bought) li.classList.add('checked-item');
+            
+            li.innerHTML = `
+                <input type="checkbox" ${item.bought ? 'checked' : ''} class="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 cursor-pointer">
+                <span class="ml-3 text-gray-700">${item.text}</span>
+                <div class="ml-auto flex items-center space-x-2">
+                    <button class="quantity-btn text-lg font-bold text-gray-500 hover:text-gray-800" data-action="decrease">-</button>
+                    <span class="font-semibold w-8 text-center">${item.quantity}</span>
+                    <button class="quantity-btn text-lg font-bold text-gray-500 hover:text-gray-800" data-action="increase">+</button>
+                </div>
+            `;
+            
+            li.querySelector('input[type="checkbox"]').addEventListener('change', () => {
+                item.bought = !item.bought;
+                saveShoppingList();
+                renderShoppingList();
             });
-          });
 
-          container.appendChild(li);
-        };
+            li.querySelectorAll('.quantity-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const action = button.dataset.action;
+                    if (action === 'increase') {
+                        item.quantity++;
+                    } else if (action === 'decrease') {
+                        item.quantity--;
+                    }
 
-        pendingItems.forEach((item) =>
-          createShoppingListItem(item, shoppingListPendingContainer)
-        );
-        boughtItems.forEach((item) =>
-          createShoppingListItem(item, shoppingListBoughtContainer)
-        );
-
-        clearShoppingListBtn.disabled = boughtItems.length === 0;
-      }
-
-      function handleManualItemAdd() {
-        const itemText = manualItemInput.value.trim();
-        if (itemText === '') return;
-
-        // Adiciona ou incrementa no shopping list
-        const existingItem = shoppingList.find(
-          (item) => item.text.toLowerCase() === itemText.toLowerCase()
-        );
-        if (existingItem) {
-          existingItem.quantity++;
-        } else {
-          shoppingList.push({ text: itemText, quantity: 1, bought: false });
-        }
-        saveShoppingList();
-
-        // Adiciona ao autocomplete list se for novo
-        const currentAutocompleteItems = new Set(
-          autocompleteItems.map((item) => item.toLowerCase())
-        );
-        if (!currentAutocompleteItems.has(itemText.toLowerCase())) {
-          autocompleteItems.push(itemText);
-          saveAutocompleteItems();
-        }
-
-        manualItemInput.value = '';
-        autocompleteSuggestions.classList.add('hidden');
-        manualItemInput.focus();
-      }
-
-      // --- Autocomplete Logic ---
-      manualItemInput.addEventListener('input', () => {
-        const value = manualItemInput.value.toLowerCase();
-        const shoppingListItems = new Set(
-          shoppingList.map((item) => item.text.toLowerCase())
-        );
-
-        if (!value) {
-          autocompleteSuggestions.classList.add('hidden');
-          return;
-        }
-        const filteredItems = autocompleteItems
-          .filter((item) => item.toLowerCase().startsWith(value))
-          .slice(0, 5);
-        autocompleteSuggestions.innerHTML = '';
-        if (filteredItems.length > 0) {
-          filteredItems.forEach((item) => {
-            const div = document.createElement('div');
-            const isInList = shoppingListItems.has(item.toLowerCase());
-            div.className =
-              'p-2 cursor-pointer flex justify-between items-center';
-            div.innerHTML = `
-                        <span>${item}</span>
-                        ${
-                          isInList
-                            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>'
-                            : ''
-                        }
-                    `;
-            div.addEventListener('click', () => {
-              manualItemInput.value = item;
-              autocompleteSuggestions.classList.add('hidden');
+                    if (item.quantity <= 0) {
+                        shoppingList = shoppingList.filter(i => i.text.toLowerCase() !== item.text.toLowerCase());
+                    }
+                    
+                    saveShoppingList();
+                    renderShoppingList();
+                });
             });
-            autocompleteSuggestions.appendChild(div);
-          });
-          autocompleteSuggestions.classList.remove('hidden');
-        } else {
-          autocompleteSuggestions.classList.add('hidden');
+            return li;
         }
-      });
 
-      document.addEventListener('click', (e) => {
-        if (
-          !manualItemInput.contains(e.target) &&
-          !autocompleteSuggestions.contains(e.target)
-        ) {
-          autocompleteSuggestions.classList.add('hidden');
-        }
-      });
+        function handleManualItemAdd() {
+            const itemText = manualItemInput.value.trim();
+            if (itemText === '') return;
+            
+            addItemsToShoppingList([itemText]);
 
-      // --- Event Listeners ---
-      addIngredientBtn.addEventListener('click', addIngredient);
-      ingredientInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          addIngredient();
+            const currentAutocompleteItems = new Set(autocompleteItems.map(item => item.toLowerCase()));
+            if (!currentAutocompleteItems.has(itemText.toLowerCase())) {
+                autocompleteItems.push(itemText);
+                saveAutocompleteItems();
+            }
+            
+            manualItemInput.value = '';
+            autocompleteSuggestions.classList.add('hidden');
+            manualItemInput.focus();
         }
-      });
-      addRecipeBtn.addEventListener('click', handleAddRecipe);
-      clearShoppingListBtn.addEventListener('click', () => {
-        shoppingList = shoppingList.filter((item) => !item.bought);
-        saveShoppingList();
-        renderShoppingList();
-      });
-      manualAddBtn.addEventListener('click', handleManualItemAdd);
-      manualItemInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          handleManualItemAdd();
-        }
-      });
 
-      // --- Initial Load ---
-      document.addEventListener('DOMContentLoaded', () => {
-        migrateShoppingList();
-      });
+        // --- Autocomplete Logic ---
+        function setupAutocomplete() {
+            manualItemInput.addEventListener('input', () => {
+                const value = manualItemInput.value.toLowerCase();
+                const shoppingListItems = new Set(shoppingList.map(item => item.text.toLowerCase()));
+
+                if (!value) {
+                    autocompleteSuggestions.classList.add('hidden');
+                    return;
+                }
+                const filteredItems = autocompleteItems.filter(item => item.toLowerCase().startsWith(value)).slice(0, 5);
+                autocompleteSuggestions.innerHTML = '';
+                if (filteredItems.length > 0) {
+                    filteredItems.forEach(item => {
+                        const div = document.createElement('div');
+                        const isInList = shoppingListItems.has(item.toLowerCase());
+                        div.className = 'p-2 cursor-pointer flex justify-between items-center';
+                        div.innerHTML = `<span>${item}</span> ${isInList ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' : ''}`;
+                        div.addEventListener('click', () => {
+                            manualItemInput.value = item;
+                            autocompleteSuggestions.classList.add('hidden');
+                        });
+                        autocompleteSuggestions.appendChild(div);
+                    });
+                    autocompleteSuggestions.classList.remove('hidden');
+                } else {
+                    autocompleteSuggestions.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!manualItemInput.contains(e.target) && !autocompleteSuggestions.contains(e.target)) {
+                    autocompleteSuggestions.classList.add('hidden');
+                }
+            });
+        }
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            navigateBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetPageId = btn.getAttribute('data-target');
+                    showPage(targetPageId);
+                });
+            });
+
+            addIngredientBtn.addEventListener('click', addIngredient);
+            ingredientInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); addIngredient(); } });
+            addRecipeBtn.addEventListener('click', handleAddRecipe);
+            clearShoppingListBtn.addEventListener('click', () => {
+                shoppingList = shoppingList.filter(item => !item.bought);
+                saveShoppingList();
+                renderShoppingList();
+            });
+            manualAddBtn.addEventListener('click', handleManualItemAdd);
+            manualItemInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleManualItemAdd(); } });
+            generateImageBtn.addEventListener('click', generateImageWithAI);
+            getSuggestionBtn.addEventListener('click', getChefSuggestion);
+            organizeListBtn.addEventListener('click', organizeShoppingList);
+            setupAutocomplete();
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            migrateShoppingList();
+            setupEventListeners();
+        });
     </script>
-  </body>
+
+</body>
 </html>
