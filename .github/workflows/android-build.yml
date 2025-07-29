@@ -1,0 +1,61 @@
+# Nome do seu fluxo de trabalho, que aparecerá na aba "Actions" do GitHub
+name: Build Android APK
+
+# Define quando o workflow deve ser executado
+on:
+  # Permite que você inicie este workflow manualmente pela aba "Actions"
+  workflow_dispatch:
+  
+  # Executa automaticamente toda vez que você envia um 'push' para a branch 'main'
+  push:
+    branches:
+      - main
+
+# Define as tarefas (jobs) que serão executadas
+jobs:
+  build:
+    # A máquina virtual que será usada para executar o trabalho. 'ubuntu-latest' é a padrão e recomendada.
+    runs-on: ubuntu-latest
+
+    # Os passos que compõem o trabalho
+    steps:
+      # 1. Baixa o código do seu repositório para a máquina virtual
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Node.js para instalar o Capacitor e outras dependências
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Você pode ajustar a versão do Node se necessário
+
+      # 3. Instala as dependências do projeto (Capacitor, etc.)
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. Sincroniza seus arquivos web (da pasta www) com o projeto nativo Android
+      - name: Sync Capacitor Project
+        run: npx cap sync android
+
+      # 5. Configura o ambiente Java (JDK), necessário para compilar um app Android
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17' # JDK 17 é recomendado para as versões mais recentes do Android
+
+      # 6. Concede permissão de execução ao Gradle Wrapper (necessário no ambiente Linux)
+      - name: Make Gradle Executable
+        run: chmod +x ./android/gradlew
+
+      # 7. Executa o comando de compilação do Android para gerar um APK de depuração (Debug)
+      - name: Build Debug APK
+        run: ./android/gradlew -p ./android assembleDebug
+
+      # 8. Faz o upload do APK gerado como um "artefato" do workflow
+      # Isso permite que você baixe o arquivo APK após a conclusão do processo
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk # O nome do arquivo que você irá baixar
+          path: android/app/build/outputs/apk/debug/app-debug.apk # O caminho onde o APK é gerado
